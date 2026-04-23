@@ -30,9 +30,11 @@ def get_player_stats(game_name: str, tag_line: str, region: str = "na") -> dict:
     return safe_request(url)
 
 
-def get_match_history(game_name: str, tag_line: str, region: str = "na", count: int = 5):
-    url = f"{HENRIK_BASE}/valorant/v3/matches/{region}/{game_name}/{tag_line}?size={count}"
+def get_match_history(game_name: str, tag_line: str, region: str = "na", count: int = 10):
+    count = min(count, 10)
+    url = f"{HENRIK_BASE}/valorant/v3/matches/{region}/{game_name}/{tag_line}?size={count}&mode=competitive"
     return safe_request(url).get("data", [])
+
 if __name__ == "__main__":
     game_name = input("Enter your Riot name (without #tag): ")
     tag_line  = input("Enter your tag (without #): ")
