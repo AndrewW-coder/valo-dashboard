@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from data_processor import process_match_history, compute_summary
+from riot_client import get_puuid, get_match_history_cached, get_cache_key
 
 # browser permissions
 
@@ -51,55 +52,40 @@ def root():
     return {"message": "Valorant Dashboard API is running"}
 
 
-@app.get("/player/{game_name}/{tag_line}", response_model=PlayerResponse)
-def get_player(game_name: str, tag_line: str, count: int = 10):
+def _fetch(game_name: str, tag_line: str, count: int) -> list[dict]:
     try:
-        matches = process_match_history(game_name, tag_line, count=count)
+        puuid = get_puuid(game_name, tag_line)
+    except Exception:
+        puuid = get_cache_key(game_name, tag_line)
+    try:
+        return get_match_history_cached(puuid, game_name, tag_line, count=count)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
+@app.get("/player/{game_name}/{tag_line}", response_model=PlayerResponse)
+def get_player(game_name: str, tag_line: str, count: int = 10):
+    matches = _fetch(game_name, tag_line, count)
     if not matches:
-        raise HTTPException(
-            status_code=404,
-            detail="No competitive matches found for this player"
-        )
-
-    summary = compute_summary(matches)
-
+        raise HTTPException(status_code=404, detail="No competitive matches found")
     return PlayerResponse(
         player=f"{game_name}#{tag_line}",
-        summary=SummaryStats(**summary),
+        summary=SummaryStats(**compute_summary(matches)),
         matches=[MatchStats(**m) for m in matches],
     )
 
 
 @app.get("/player/{game_name}/{tag_line}/summary", response_model=SummaryStats)
 def get_summary(game_name: str, tag_line: str, count: int = 10):
-    try:
-        matches = process_match_history(game_name, tag_line, count=count)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    matches = _fetch(game_name, tag_line, count)
     if not matches:
-        raise HTTPException(
-            status_code=404,
-            detail="No competitive matches found for this player"
-        )
-
+        raise HTTPException(status_code=404, detail="No competitive matches found")
     return SummaryStats(**compute_summary(matches))
 
 
 @app.get("/player/{game_name}/{tag_line}/matches", response_model=list[MatchStats])
 def get_matches(game_name: str, tag_line: str, count: int = 10):
-    try:
-        matches = process_match_history(game_name, tag_line, count=count)
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
+    matches = _fetch(game_name, tag_line, count)
     if not matches:
-        raise HTTPException(
-            status_code=404,
-            detail="No competitive matches found for this player"
-        )
-
+        raise HTTPException(status_code=404, detail="No competitive matches found")
     return [MatchStats(**m) for m in matches]
