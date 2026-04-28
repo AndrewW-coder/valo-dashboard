@@ -3,44 +3,51 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from data_processor import process_match_history, compute_summary
 from riot_client import get_puuid, get_match_history_cached, get_cache_key
+from mangum import Mangum 
 
 # browser permissions
 
-app = FastAPI(title="Valorant Dashboard API", version="1.0.0")
+app = FastAPI(
+    title="Valorant Dashboard API",
+    version="1.0.0",
+    root_path="/prod",
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8050",
+        "https://valorant-dashboard.onrender.com",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# --- json format responses ---
-
 class MatchStats(BaseModel):
-    match_id:  str | None
-    map:       str | None
-    mode:      str | None
-    agent:     str | None
-    kills:     int
-    deaths:    int
-    assists:   int
-    kd_ratio:  float
-    hs_pct:    float
-    damage:    int
-    won:       bool
+    match_id: str | None
+    map: str | None
+    mode: str | None
+    agent: str | None
+    kills: int
+    deaths: int
+    assists: int
+    kd_ratio: float
+    hs_pct: float
+    damage: int
+    rounds_played:    int
+    damage_per_round: float
+    won:              bool
 
 class SummaryStats(BaseModel):
-    total_matches:   int
-    win_rate:        float
-    avg_kd:          float
-    avg_hs_pct:      float
-    avg_damage:      float
+    total_matches: int
+    win_rate: float
+    avg_kd: float
+    avg_hs_pct: float
+    avg_damage_per_round: float
     agent_win_rates: dict[str, float]
-    map_win_rates:   dict[str, float]
+    map_win_rates: dict[str, float]
 
 class PlayerResponse(BaseModel):
-    player:  str
+    player: str
     summary: SummaryStats
     matches: list[MatchStats]
 
@@ -89,3 +96,5 @@ def get_matches(game_name: str, tag_line: str, count: int = 10):
     if not matches:
         raise HTTPException(status_code=404, detail="No competitive matches found")
     return [MatchStats(**m) for m in matches]
+
+handler = Mangum(app, lifespan="off")

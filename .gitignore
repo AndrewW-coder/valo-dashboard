@@ -1,1 +1,6 @@
 .env
+package/
+valorant-dashboard.zip
+__pycache__/
+*.pyc
+response.json
