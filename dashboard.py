@@ -395,10 +395,13 @@ app.index_string = '''
         window.addEventListener("scroll", updateSections, { passive: true });
         updateSections();
 
-        window.scrollToSection = function(i) {
-            const sections = document.querySelectorAll(".section");
-            if (sections[i]) sections[i].scrollIntoView({ behavior: "smooth", block: "center" });
-        };
+        document.querySelectorAll(".progress-dot").forEach(function(dot) {
+            dot.addEventListener("click", function() {
+                const i = parseInt(dot.getAttribute("data-index"), 10);
+                const sections = document.querySelectorAll(".section");
+                if (sections[i]) sections[i].scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+        });
     });
     </script>
 </body>
@@ -440,11 +443,10 @@ app.layout = html.Div(children=[
 
     ticker_html(),
 
-    # Progress dots (JS fills active class)
+    # Progress dots (JS fills active class and handles clicks)
     html.Div(className="progress-rail", children=[
         html.Div(id=f"dot-{i}", className="progress-dot",
-                 **{"data-index": str(i),
-                    "onClick": f"scrollToSection({i})"})
+                 **{"data-index": str(i)})
         for i in range(6)
     ]),
 
