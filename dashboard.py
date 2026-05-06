@@ -247,7 +247,10 @@ app.index_string = '''
             inset: 0;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Crect width='3' height='3' fill='%23e8dfc4'/%3E%3Crect x='0' y='0' width='1' height='1' fill='%23b0a070' opacity='0.1'/%3E%3C/svg%3E");
             pointer-events: none;
+            z-index: 0;
         }
+        /* Ensure all interactive children sit above the texture overlay */
+        .search-block > * { position: relative; z-index: 1; }
         .search-headline {
             font-family: 'Playfair Display', serif;
             font-size: 28px;
@@ -1012,12 +1015,12 @@ def render_visuals(player_data):
     MONO = "Courier Prime, monospace"
     DISP = "Playfair Display, serif"
 
-    def base_layout(**kwargs):
+    def base_layout(height=300, **kwargs):
         return dict(
             plot_bgcolor=BG,
             paper_bgcolor=BG,
             font={"color": INK, "family": MONO},
-            height=300,
+            height=height,
             margin={"t": 10, "b": 50, "l": 50, "r": 20},
             xaxis={
                 "showgrid": False,
@@ -1136,8 +1139,7 @@ def render_visuals(player_data):
         hovertemplate="<b>%{x}</b><br>Win rate: %{y}%<extra></extra>",
     ))
     agent_fig.update_layout(
-        **base_layout(xaxis_title="Agent", yaxis_title="Win Rate %", yaxis_range=[0, 100]),
-        height=280,
+        **base_layout(height=280, xaxis_title="Agent", yaxis_title="Win Rate %", yaxis_range=[0, 100]),
     )
 
     # ── Map win rates ────────────────────────────────
@@ -1153,8 +1155,7 @@ def render_visuals(player_data):
         hovertemplate="<b>%{x}</b><br>Win rate: %{y}%<extra></extra>",
     ))
     map_fig.update_layout(
-        **base_layout(xaxis_title="Map", yaxis_title="Win Rate %", yaxis_range=[0, 100]),
-        height=280,
+        **base_layout(height=280, xaxis_title="Map", yaxis_title="Win Rate %", yaxis_range=[0, 100]),
     )
 
     return stat_section, kd_fig, hs_fig, agent_fig, map_fig
