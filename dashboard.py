@@ -5,7 +5,7 @@ import requests
 
 API_BASE = "https://2gi0kne1gd.execute-api.us-east-1.amazonaws.com/prod"
 
-app = dash.Dash(__name__, title="The Valorant Gazette")
+app = dash.Dash(__name__, title="The Valorant Report")
 
 app.index_string = '''
 <!DOCTYPE html>
@@ -834,7 +834,7 @@ app.layout = html.Div(children=[
             html.Span("★  OFFICIAL RECORD  ★"),
             html.Span("FIVE ROUNDS OR BUST"),
         ]),
-        html.Div("The Valorant Gazette", className="masthead-title"),
+        html.Div("The Valorant Report", className="masthead-title"),
         html.Div("All The Frags Fit To Print — Competitive Intelligence Since Episode I", className="masthead-sub"),
         html.Div(className="masthead-rule-bot"),
     ]),

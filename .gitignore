@@ -4,3 +4,22 @@ valorant-dashboard.zip
 __pycache__/
 *.pyc
 response.json
+# Local environment variants (safe templates may be committed)
+.env.*
+!.env.example
+!.env.sample
+
+# Separate frontend repository
+/valorant-report/
+
+# Local dependencies, build output, and tooling caches
+node_modules/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+.DS_Store
+Thumbs.db
