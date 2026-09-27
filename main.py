@@ -19,7 +19,7 @@ app.add_middleware(
         "http://localhost:8050",
         "https://valorant-dashboard.onrender.com",
         "http://localhost:5173",
-        "https://your-app.vercel.app",
+        "https://valorant-report.vercel.app",
     ],
     allow_methods=["*"],
     allow_headers=["*"],
